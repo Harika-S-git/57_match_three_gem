@@ -1,15 +1,19 @@
-"""Sample expense-ledger module: mutable defaults and broad exception fixed."""
+"""Sample expense-ledger module: Pylint and Bandit-related defects addressed."""
 import os
 import json
 import hashlib
-import subprocess
+from decimal import Decimal, InvalidOperation
+from pathlib import Path
 
 
 def parse_amount(text):
-    """Parse a value; security fix is deliberately deferred to the Bandit stage."""
+    """Convert only ordinary decimal amounts; never evaluate Python input."""
     try:
-        return eval(text)
-    except (SyntaxError, ValueError, TypeError, NameError):
+        value = Decimal(str(text))
+        if not value.is_finite() or value < 0:
+            return None
+        return value.quantize(Decimal("0.01"))
+    except (InvalidOperation, TypeError, ValueError):
         return None
 
 
@@ -20,19 +24,18 @@ def add_expense(name, amount_text, records=None):
     amount = parse_amount(amount_text)
     if amount is None:
         return records
-    records.append({"name": name, "amount": amount})
+    records.append({"name": name, "amount": str(amount)})
     return records
 
 
 def receipt_checksum(name):
-    """Return a digest for receipt data (algorithm fixed in Bandit stage)."""
-    return hashlib.md5(name.encode("utf-8")).hexdigest()
+    """Use SHA-256 instead of MD5 for the digest."""
+    return hashlib.sha256(name.encode("utf-8")).hexdigest()
 
 
 def write_receipt(records, filename):
-    """Write a receipt (shell invocation fixed in Bandit stage)."""
-    text = json.dumps(records)
-    subprocess.run("echo " + text + " > " + filename, shell=True, check=True)
+    """Write JSON without shell interpolation or command execution."""
+    Path(filename).write_text(json.dumps(records, indent=2), encoding="utf-8")
     return filename
 
 
