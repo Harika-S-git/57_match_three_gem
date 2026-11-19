@@ -1,0 +1,30 @@
+@startuml
+title Lab 3 - Coffee Kiosk Component Diagram
+skinparam componentStyle uml2
+top to bottom direction
+component "Touchscreen UI" as UI
+component "Order Manager" as Order
+component "Payment Service" as Payment
+component "Receipt Printer Adapter" as Receipt
+component "Menu and Pricing Repository" as Menu
+component "External Card Gateway" as Gateway
+component "Receipt Printer Hardware" as Printer
+() "IOrderService" as I0
+UI ..> I0 : requires
+Order -- I0 : provides
+() "IPaymentService" as I1
+Order ..> I1 : requires
+Payment -- I1 : provides
+() "IReceiptService" as I2
+Order ..> I2 : requires
+Receipt -- I2 : provides
+() "IMenuCatalog" as I3
+Order ..> I3 : requires
+Menu -- I3 : provides
+() "ICardAuthorization" as I4
+Payment ..> I4 : requires
+Gateway -- I4 : provides
+() "IPrinterDevice" as I5
+Receipt ..> I5 : requires
+Printer -- I5 : provides
+@enduml
