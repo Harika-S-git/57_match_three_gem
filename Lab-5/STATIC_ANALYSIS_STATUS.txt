@@ -1,0 +1,1 @@
+NOT RUN: Pylint, Bandit and Flake8 were unavailable in the source environment. No reports are fabricated. This is a sample, not the instructor-assigned code.
